@@ -1,0 +1,15 @@
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: todo
+  labels:
+    app: todo
+spec:
+  selector:
+    app: todo
+  ports:
+  - name: web
+    protocol: TCP
+    port: 5000
+    targetPort: 5000

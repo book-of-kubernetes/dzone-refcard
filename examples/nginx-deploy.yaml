@@ -1,0 +1,41 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: nginx
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:1.23.1-alpine
+        volumeMounts:
+        - mountPath: /usr/share/nginx
+          name: www-data
+          readOnly: true
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "50m"
+          limits:
+            memory: "128Mi"
+            cpu: "50m"
+      initContainers:
+      - name: git-clone
+        image: alpine/git
+        args:
+        - "clone"
+        - "https://github.com/book-of-kubernetes/hello-world-static"
+        - "/www/html"
+        volumeMounts:
+        - mountPath: "/www"
+          name: www-data
+      volumes:
+      - name: www-data
+        emptyDir: {}

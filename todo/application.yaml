@@ -1,0 +1,55 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: todo
+  labels:
+    app: todo
+spec:
+  replicas: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 30%
+      maxSurge: 50%
+  selector:
+    matchLabels:
+      app: todo
+  template:
+    metadata:
+      labels:
+        app: todo
+    spec:
+      containers:
+      - name: todo
+        image: bookofkubernetes/todo:stable
+        env:
+        - name: NODE_ENV
+          value: production
+        - name: PREFIX
+          value: /todo
+        - name: PGHOST
+          value: todo-db
+        - name: PGDATABASE
+          value: todo
+        - name: PGUSER
+          valueFrom:
+            secretKeyRef:
+              name: todo.todo-db.credentials.postgresql.acid.zalan.do
+              key: username
+              optional: false
+        - name: PGPASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: todo.todo-db.credentials.postgresql.acid.zalan.do
+              key: password
+              optional: false
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "50m"
+          limits:
+            memory: "128Mi"
+            cpu: "50m"
+        ports:
+        - name: web
+          containerPort: 5000
